@@ -43,7 +43,7 @@ local function get_item_state(item_id)
     local itemmanager = sdk.get_managed_singleton(sdk.game_namespace("gamemastering.ItemManager"))
     if not itemmanager then
         return {
-            is_infinite_use = false
+            is_infinite_use = false,
             is_removable = false
         }
     end

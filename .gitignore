@@ -2,3 +2,4 @@ venv
 assets/items/*
 assets/weapons/*
 output
+*.zip

@@ -19,10 +19,14 @@ New-Item -Path "./output/reframework" -Name "fonts" -ItemType "Directory"
 New-Item -Path "./output/reframework" -Name "images" -ItemType "Directory"
 New-Item -Path "./output/reframework" -Name "autorun" -ItemType "Directory"
 
+if (Test-Path "./RE2InventoryOverlay.zip") {
+    Remove-Item "./RE2InventoryOverlay.zip"
+}
+
 $modinfo=@"
 name=RE2 Inventory Overlay
 version=v$version
-description=Inventory overlay for Resident Evil 2 (Ray Tracing update). Requires REFRamework
+description=Inventory overlay for Resident Evil 2 (Ray Tracing update). Requires REFRamework and reframework-d2d
 author=NonBinarySearch
 screenshot=screenshot.png
 "@
@@ -35,3 +39,4 @@ Copy-Item "./assets/NotoSansMono-SemiBold.ttf" -Destination "./output/reframewor
 Copy-Item "./assets/items" -Filter "*.png" -Destination "./output/reframework/images/NonBinarySearchInventoryOverlay/items/" -Recurse
 Copy-Item "./assets/weapons" -Filter "*.png" -Destination "./output/reframework/images/NonBinarySearchInventoryOverlay/weapons/" -Recurse
 
+Compress-Archive -Path "./output/*" -DestinationPath "RE2InventoryOverlay.zip"
