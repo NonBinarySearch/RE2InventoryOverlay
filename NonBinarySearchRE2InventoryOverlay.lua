@@ -33,6 +33,18 @@ local function get_game_state()
 	return flowmanager:call("get_IsInGame"), flowmanager:call("get_IsInPause")
 end
 
+local function get_item_state(item_id)
+	local itemmanager = sdk.get_managed_singleton(sdk.game_namespace("gamemastering.ItemManager"))
+	if not itemmanager then
+		return false
+	end
+
+	return {
+		is_infinite_use = itemmanager:call("isItemInfinityUse", item_id),
+		is_removable = itemmanager:call("getItemRemovable", item_id)
+	}
+end
+
 local items = {
 	"1",
 	"10",
@@ -223,7 +235,7 @@ local weapons = {
 local settings = {
 	scaling = 1,
 	padding = 10,
-	margin_top = 220,
+	margin_top = 240,
 	margin_left = 40,
 	textsize = 16
 }
@@ -358,31 +370,31 @@ local function draw_text_below_image(s, x, y, w, h)
 	)
 end
 
-local function draw_item(image, col, row, item_number)
+local function draw_item(image, col, row, item_number, item_state)
 	local x,y,w,h = draw_image(image, col, row)
-	if item_number > 1 then
+	if item_state.is_infinite_use and not item_state.is_removable then
+		draw_text_below_image("[K]",x,y,w,h)
+	elseif not item_state.is_infinite_use then
 		draw_text_below_image(tostring(item_number),x,y,w,h)
 	end
 end
 
-local function draw_weapon(image, col, row, current_ammo, max_ammo)
+local function draw_weapon(image, col, row, current_ammo, max_ammo, is_equip)
 	local x,y,w,h = draw_image(image, col, row)
+	local s = ""
 	if max_ammo < 0 and current_ammo < 0 then
-		draw_text_below_image(
-			"inf",
-			x,y,w,h
-		)
+		s = "inf"
 	elseif max_ammo < 0 then
-		draw_text_below_image(
-			string.format("%d/inf", current_ammo),
-			x,y,w,h
-		)
+		s = string.format("%d/inf", current_ammo)
 	else
-		draw_text_below_image(
-			string.format("%d/%d", current_ammo, max_ammo),
-			x,y,w,h
-		)
+		s = string.format("%d/%d", current_ammo, max_ammo)
 	end
+
+	if is_equip then
+		s = s .. "[E]"
+	end
+
+	draw_text_below_image(s,x,y,w,h)
 end
 
 local function draw_border(col, row, is_fat)
@@ -400,6 +412,19 @@ local function draw_border(col, row, is_fat)
 	d2d.outline_rect(x + shadowoffset, y + shadowoffset, w, h, thickness, sc)
 	d2d.outline_rect(x + (shadowoffset * 2), y + (shadowoffset * 2), w, h, thickness, sc)
 	d2d.outline_rect(x, y, w, h, thickness, fc)
+end
+
+local function draw_error(col, row, is_fat)
+	local x,y = get_base_coord(col, row)
+	local w = unit
+	if is_fat then
+		w = 2 * unit
+	end
+	local h = unit + padding
+	local thickness = 1
+	local red = rgba(255, 0, 0, 255)
+	d2d.line(x, y, x + w, y + h, thickness, red)
+	d2d.line(x, y + h, x + w, y, thickness, red)
 end
 
 local function inventory_overlay_d2d_draw()
@@ -428,16 +453,27 @@ local function inventory_overlay_d2d_draw()
 			if slot:call("get_IsItem") then
 				local item_id = slot:call("get_ItemID")
 				local item_number = slot:call("get_Number")
-				draw_item(images[string.format("items/%d", item_id)], col, row, item_number)
+				local image = images[string.format("items/%d", item_id)]
+				if not image then
+					draw_error(col, row, slot:call("get_IsFatSlot"))
+				else
+					draw_item(image, col, row, item_number, get_item_state(item_id))
+				end
 			elseif slot:call("get_IsWeapon") then
 				local weapon_id = slot:call("get_WeaponType")
 				local attachments = slot:call("get_WeaponParts")
 				local current_ammo = slot:call("get_Number")
 				local max_ammo = slot:call("get_MaxNumber")
+				local is_equip = inventory:call("isEquipSlot", index)
 				if slot:call("get_AlwaysReloadable") then
 					max_ammo = -1
 				end
-				draw_weapon(images[string.format("weapons/%d,%d", weapon_id, attachments)], col, row, current_ammo, max_ammo)
+				local image = images[string.format("weapons/%d,%d", weapon_id, attachments)]
+				if not image then
+					draw_error(col, row, slot:call("get_IsFatSlot"))
+				else
+					draw_weapon(image, col, row, current_ammo, max_ammo, is_equip)
+				end
 			end
 
 			if slot:call("get_IsFatSlot") then

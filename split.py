@@ -4,7 +4,7 @@ from enum import Enum
 inv_slot_width = 112
 inv_slot_height = 112
 
-im = Image.open("ui0100_iam.texout.png")
+im = Image.open("assets/ui0100_iam.texout.png")
 
 def crop_image(i, j, fat=False):
     if fat:
@@ -294,7 +294,7 @@ item_images[ItemEnumeration.FuseBreakRoom] = crop_image(8,col); col += 1;
 item_images[ItemEnumeration.WoodenBox1] = crop_image(14, 9)
 item_images[ItemEnumeration.WoodenBox2] = crop_image(14, 10)
 
-item_images[ItemEnumeration.OldKey] = Image.open("40d.texout.png").resize((inv_slot_width, inv_slot_height))
+item_images[ItemEnumeration.OldKey] = Image.open("assets/40d.texout.png").resize((inv_slot_width, inv_slot_height))
 
 
 class WeaponEnumeration(Enum):
@@ -404,7 +404,7 @@ weapon_images[(WeaponEnumeration.FlashGrenade, AttachmentsFlag.Nothing.value)] =
 
 
 for k,i in item_images.items():
-    i.save(f"images/items/{k.value}.png")
+    i.save(f"assets/items/{k.value}.png")
 
 for k,i in weapon_images.items():
-    i.save(f"images/weapons/{k[0].value},{k[1]}.png")
+    i.save(f"assets/weapons/{k[0].value},{k[1]}.png")

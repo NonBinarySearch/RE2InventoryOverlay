@@ -1,2 +1,3 @@
 venv
-images/*
+assets/items/*
+assets/weapons/*
