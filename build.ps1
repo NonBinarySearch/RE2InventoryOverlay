@@ -24,7 +24,7 @@ if (Test-Path "./RE2InventoryOverlay.zip") {
 $modinfo=@"
 name=RE2 Inventory Overlay
 version=v$version
-description=Inventory overlay for Resident Evil 2 (Ray Tracing update). Requires REFRamework and reframework-d2d
+description=Inventory overlay for Resident Evil 2 (RT and non-RT). Requires REFRamework and reframework-d2d
 author=NonBinarySearch
 screenshot=screenshot.png
 "@
